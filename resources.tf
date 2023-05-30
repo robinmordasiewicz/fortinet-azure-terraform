@@ -134,10 +134,10 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = tls_private_key.example_ssh.public_key_openssh
+    public_key = tls_private_key.example_ssh[count.index].public_key_openssh
   }
 
   boot_diagnostics {
-    storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
+    storage_account_uri = azurerm_storage_account.my_storage_account[count.index].primary_blob_endpoint
   }
 }
