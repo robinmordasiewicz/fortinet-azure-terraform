@@ -87,7 +87,7 @@ resource "random_id" "storage_account" {
     resource_group = azurerm_resource_group.rg[count.index].name
   }
   prefix      = var.resource_group_name_prefix
-  byte_length = 8
+  byte_length = 1
 }
 
 # Create storage account for boot diagnostics
