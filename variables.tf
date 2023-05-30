@@ -12,3 +12,4 @@ variable "apply" {
   default     = false
   description = "Allow terraform to dynamically apply or destroy resoures"
 }
+
