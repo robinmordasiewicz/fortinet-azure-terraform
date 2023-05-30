@@ -1,28 +1,13 @@
-#resource "random_string" "rg_name" {
-#  count   = var.apply ? 1 : 0
-#  length  = 4
-#  numeric = true
-#  lower   = true
-#  special = false
-#}
-
 resource "random_id" "rg_name" {
   count       = var.apply ? 1 : 0
   byte_length = 1
   prefix      = var.resource_group_name_prefix
 }
 
-#resource "random_pet" "rg_name" {
-#  count  = var.apply ? 1 : 0
-#  prefix = var.resource_group_name_prefix
-#}
-
 resource "azurerm_resource_group" "rg" {
   count    = var.apply ? 1 : 0
   location = var.resource_group_location
-  #name     = random_string.rg_name[count.index].id
-  name = random_id.rg_name[count.index].id
-  #name     = random_pet.rg_name[count.index].id
+  name     = random_id.rg_name[count.index].id
 }
 
 # Create virtual network
@@ -101,14 +86,14 @@ resource "random_id" "random_id" {
     # Generate a new ID only when a new resource group is defined
     resource_group = azurerm_resource_group.rg[count.index].name
   }
-
+  prefix      = var.resource_group_name_prefix
   byte_length = 8
 }
 
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "storage_account" {
   count                    = var.apply ? 1 : 0
-  name                     = "${random_id.rg_name[count.index].id}-diag${random_id.random_id[count.index].hex}"
+  name                     = "diag${random_id.random_id[count.index].hex}"
   location                 = azurerm_resource_group.rg[count.index].location
   resource_group_name      = azurerm_resource_group.rg[count.index].name
   account_tier             = "Standard"
