@@ -80,7 +80,7 @@ resource "azurerm_network_interface_security_group_association" "nic_host_associ
 }
 
 # Generate random text for a unique storage account name
-resource "random_id" "random_id" {
+resource "random_id" "storage_account" {
   count = var.apply ? 1 : 0
   keepers = {
     # Generate a new ID only when a new resource group is defined
@@ -93,7 +93,7 @@ resource "random_id" "random_id" {
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "storage_account" {
   count                    = var.apply ? 1 : 0
-  name                     = "diag${random_id.random_id[count.index].hex}"
+  name                     = "diag${random_id.storage_account[count.index].hex}"
   location                 = azurerm_resource_group.rg[count.index].location
   resource_group_name      = azurerm_resource_group.rg[count.index].name
   account_tier             = "Standard"
