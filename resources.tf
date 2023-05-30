@@ -1,14 +1,17 @@
 resource "random_pet" "rg_name" {
+  count = var.apply ? 1 : 0
   prefix = var.resource_group_name_prefix
 }
 
 resource "azurerm_resource_group" "rg" {
+  count = var.apply ? 1 : 0
   location = var.resource_group_location
   name     = random_pet.rg_name.id
 }
 
 # Create virtual network
 resource "azurerm_virtual_network" "my_terraform_network" {
+  count = var.apply ? 1 : 0
   name                = "myVnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
@@ -17,6 +20,7 @@ resource "azurerm_virtual_network" "my_terraform_network" {
 
 # Create subnet
 resource "azurerm_subnet" "my_terraform_subnet" {
+  count = var.apply ? 1 : 0
   name                 = "mySubnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.my_terraform_network.name
@@ -25,6 +29,7 @@ resource "azurerm_subnet" "my_terraform_subnet" {
 
 # Create public IPs
 resource "azurerm_public_ip" "my_terraform_public_ip" {
+  count = var.apply ? 1 : 0
   name                = "myPublicIP"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -33,6 +38,7 @@ resource "azurerm_public_ip" "my_terraform_public_ip" {
 
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "my_terraform_nsg" {
+  count = var.apply ? 1 : 0
   name                = "myNetworkSecurityGroup"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -52,6 +58,7 @@ resource "azurerm_network_security_group" "my_terraform_nsg" {
 
 # Create network interface
 resource "azurerm_network_interface" "my_terraform_nic" {
+  count = var.apply ? 1 : 0
   name                = "myNIC"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -66,12 +73,14 @@ resource "azurerm_network_interface" "my_terraform_nic" {
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "example" {
+  count = var.apply ? 1 : 0
   network_interface_id      = azurerm_network_interface.my_terraform_nic.id
   network_security_group_id = azurerm_network_security_group.my_terraform_nsg.id
 }
 
 # Generate random text for a unique storage account name
 resource "random_id" "random_id" {
+  count = var.apply ? 1 : 0
   keepers = {
     # Generate a new ID only when a new resource group is defined
     resource_group = azurerm_resource_group.rg.name
@@ -82,6 +91,7 @@ resource "random_id" "random_id" {
 
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "my_storage_account" {
+  count = var.apply ? 1 : 0
   name                     = "diag${random_id.random_id.hex}"
   location                 = azurerm_resource_group.rg.location
   resource_group_name      = azurerm_resource_group.rg.name
@@ -91,12 +101,14 @@ resource "azurerm_storage_account" "my_storage_account" {
 
 # Create (and display) an SSH key
 resource "tls_private_key" "example_ssh" {
+  count = var.apply ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
+  count = var.apply ? 1 : 0
   name                  = "myVM"
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
