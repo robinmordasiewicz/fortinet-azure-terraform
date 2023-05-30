@@ -7,6 +7,7 @@ resource "random_string" "rg_name" {
 }
 
 resource "random_id" "rg_name" {
+  count = var.apply ? 1 : 0
   byte_length = 1
   prefix = var.resource_group_name_prefix
 }
