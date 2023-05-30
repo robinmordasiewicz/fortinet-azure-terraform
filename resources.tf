@@ -4,12 +4,11 @@ resource "random_string" "rg_name" {
   numeric = true
   lower = true
   special          = false
-  prefix = var.resource_group_name_prefix
 }
 
 resource "random_id" "rg_name" {
   byte_length = 1
-  prefix = "rmordasiewicz-${var.resource_group_name_prefix}"
+  prefix = var.resource_group_name_prefix
 }
 
 resource "random_pet" "rg_name" {
