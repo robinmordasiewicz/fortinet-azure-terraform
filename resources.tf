@@ -1,34 +1,34 @@
-resource "random_string" "rg_name" {
-  count = var.apply ? 1 : 0
-  length           = 4
-  numeric = true
-  lower = true
-  special          = false
-}
+#resource "random_string" "rg_name" {
+#  count   = var.apply ? 1 : 0
+#  length  = 4
+#  numeric = true
+#  lower   = true
+#  special = false
+#}
 
 resource "random_id" "rg_name" {
-  count = var.apply ? 1 : 0
+  count       = var.apply ? 1 : 0
   byte_length = 1
-  prefix = var.resource_group_name_prefix
+  prefix      = var.resource_group_name_prefix
 }
 
-resource "random_pet" "rg_name" {
-  count = var.apply ? 1 : 0
-  prefix = var.resource_group_name_prefix
-}
+#resource "random_pet" "rg_name" {
+#  count  = var.apply ? 1 : 0
+#  prefix = var.resource_group_name_prefix
+#}
 
 resource "azurerm_resource_group" "rg" {
-  count = var.apply ? 1 : 0
+  count    = var.apply ? 1 : 0
   location = var.resource_group_location
-  #name     = random_pet.rg_name[count.index].id
-  name     = random_id.rg_name[count.index].id
   #name     = random_string.rg_name[count.index].id
+  name = random_id.rg_name[count.index].id
+  #name     = random_pet.rg_name[count.index].id
 }
 
 # Create virtual network
 resource "azurerm_virtual_network" "my_terraform_network" {
-  count = var.apply ? 1 : 0
-  name                = "myVnet"
+  count               = var.apply ? 1 : 0
+  name                = "${random_id.rg_name[count.index].id}-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
@@ -36,8 +36,8 @@ resource "azurerm_virtual_network" "my_terraform_network" {
 
 # Create subnet
 resource "azurerm_subnet" "my_terraform_subnet" {
-  count = var.apply ? 1 : 0
-  name                 = "mySubnet"
+  count                = var.apply ? 1 : 0
+  name                 = "${random_id.rg_name[count.index].id}-subnet"
   resource_group_name  = azurerm_resource_group.rg[count.index].name
   virtual_network_name = azurerm_virtual_network.my_terraform_network[count.index].name
   address_prefixes     = ["10.0.1.0/24"]
@@ -45,8 +45,8 @@ resource "azurerm_subnet" "my_terraform_subnet" {
 
 # Create public IPs
 resource "azurerm_public_ip" "my_terraform_public_ip" {
-  count = var.apply ? 1 : 0
-  name                = "myPublicIP"
+  count               = var.apply ? 1 : 0
+  name                = "${random_id.rg_name[count.index].id}-publicip"
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
   allocation_method   = "Dynamic"
@@ -54,8 +54,8 @@ resource "azurerm_public_ip" "my_terraform_public_ip" {
 
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "my_terraform_nsg" {
-  count = var.apply ? 1 : 0
-  name                = "myNetworkSecurityGroup"
+  count               = var.apply ? 1 : 0
+  name                = "${random_id.rg_name[count.index].id}-nsg"
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
 
@@ -74,8 +74,8 @@ resource "azurerm_network_security_group" "my_terraform_nsg" {
 
 # Create network interface
 resource "azurerm_network_interface" "my_terraform_nic" {
-  count = var.apply ? 1 : 0
-  name                = "myNIC"
+  count               = var.apply ? 1 : 0
+  name                = "${random_id.rg_name[count.index].id}-nic"
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
 
@@ -89,7 +89,7 @@ resource "azurerm_network_interface" "my_terraform_nic" {
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "example" {
-  count = var.apply ? 1 : 0
+  count                     = var.apply ? 1 : 0
   network_interface_id      = azurerm_network_interface.my_terraform_nic[count.index].id
   network_security_group_id = azurerm_network_security_group.my_terraform_nsg[count.index].id
 }
@@ -107,8 +107,8 @@ resource "random_id" "random_id" {
 
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "my_storage_account" {
-  count = var.apply ? 1 : 0
-  name                     = "diag${random_id.random_id[count.index].hex}"
+  count                    = var.apply ? 1 : 0
+  name                     = "${random_id.rg_name[count.index].id}-diag${random_id.random_id[count.index].hex}"
   location                 = azurerm_resource_group.rg[count.index].location
   resource_group_name      = azurerm_resource_group.rg[count.index].name
   account_tier             = "Standard"
@@ -117,15 +117,15 @@ resource "azurerm_storage_account" "my_storage_account" {
 
 # Create (and display) an SSH key
 resource "tls_private_key" "example_ssh" {
-  count = var.apply ? 1 : 0
+  count     = var.apply ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
-  count = var.apply ? 1 : 0
-  name                  = "myVM"
+  count                 = var.apply ? 1 : 0
+  name                  = "${random_id.rg_name[count.index].id}-vm"
   location              = azurerm_resource_group.rg[count.index].location
   resource_group_name   = azurerm_resource_group.rg[count.index].name
   network_interface_ids = [azurerm_network_interface.my_terraform_nic[count.index].id]
@@ -144,7 +144,7 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
     version   = "latest"
   }
 
-  computer_name                   = "myvm"
+  computer_name                   = "${random_id.rg_name[count.index].id}-vm"
   admin_username                  = "azureuser"
   disable_password_authentication = true
 
