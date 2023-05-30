@@ -1,7 +1,7 @@
 resource "random_id" "resource_group" {
   count       = var.apply ? 1 : 0
   byte_length = 1
-  prefix      = var.resource_group_name_prefix
+  prefix      = lower(var.resource_group_name_prefix)
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -93,7 +93,7 @@ resource "random_id" "storage_account" {
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "storage_account" {
   count                    = var.apply ? 1 : 0
-  name                     = "diag${random_id.storage_account[count.index].hex}"
+  name                     = "${random_id.storage_account[count.index].hex}"
   location                 = azurerm_resource_group.rg[count.index].location
   resource_group_name      = azurerm_resource_group.rg[count.index].name
   account_tier             = "Standard"
