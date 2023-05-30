@@ -1,20 +1,28 @@
 resource "random_string" "rg_name" {
+  count = var.apply ? 1 : 0
   length           = 4
   numeric = true
   lower = true
   special          = false
-  override_special = "/@£$"
+  prefix = var.resource_group_name_prefix
 }
 
-#resource "random_pet" "rg_name" {
-#  count = var.apply ? 1 : 0
-#  prefix = var.resource_group_name_prefix
-#}
+resource "random_id" "rg_name" {
+  byte_length = 1
+  prefix = "rmordasiewicz-${var.resource_group_name_prefix}"
+}
+
+resource "random_pet" "rg_name" {
+  count = var.apply ? 1 : 0
+  prefix = var.resource_group_name_prefix
+}
 
 resource "azurerm_resource_group" "rg" {
   count = var.apply ? 1 : 0
   location = var.resource_group_location
-  name     = random_pet.rg_name[count.index].id
+  #name     = random_pet.rg_name[count.index].id
+  name     = random_id.rg_name[count.index].id
+  #name     = random_string.rg_name[count.index].id
 }
 
 # Create virtual network
