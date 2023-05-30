@@ -9,6 +9,6 @@ variable "resource_group_name_prefix" {
 }
 
 variable "apply" {
-  defult = false
+  default = false
   description = "Allow terraform to dynamically apply or destroy resoures"
 }
