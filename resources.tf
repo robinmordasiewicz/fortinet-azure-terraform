@@ -6,7 +6,7 @@ resource "random_pet" "rg_name" {
 resource "azurerm_resource_group" "rg" {
   count = var.apply ? 1 : 0
   location = var.resource_group_location
-  name     = random_pet.rg_name.id[count.index]
+  name     = random_pet.rg_name[count.index].id
 }
 
 # Create virtual network
