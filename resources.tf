@@ -88,7 +88,7 @@ resource "azurerm_network_interface" "nic" {
 }
 
 # Connect the security group to the network interface
-resource "azurerm_network_interface_security_group_association" "example" {
+resource "azurerm_network_interface_security_group_association" "nic_host_association" {
   count                     = var.apply ? 1 : 0
   network_interface_id      = azurerm_network_interface.nic[count.index].id
   network_security_group_id = azurerm_network_security_group.nsg[count.index].id
