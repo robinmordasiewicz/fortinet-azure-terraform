@@ -1,7 +1,15 @@
-resource "random_pet" "rg_name" {
-  count = var.apply ? 1 : 0
-  prefix = var.resource_group_name_prefix
+resource "random_string" "rg_name" {
+  length           = 4
+  numeric = true
+  lower = true
+  special          = false
+  override_special = "/@£$"
 }
+
+#resource "random_pet" "rg_name" {
+#  count = var.apply ? 1 : 0
+#  prefix = var.resource_group_name_prefix
+#}
 
 resource "azurerm_resource_group" "rg" {
   count = var.apply ? 1 : 0
