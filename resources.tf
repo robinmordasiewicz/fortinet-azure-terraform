@@ -1,7 +1,7 @@
 resource "random_id" "resource_group" {
   count       = var.apply ? 1 : 0
   byte_length = 1
-  prefix      = replace(lower(var.resource_group_name_prefix), "-", "")
+  prefix      = var.resource_group_name_prefix
 }
 
 resource "azurerm_resource_group" "rg" {
