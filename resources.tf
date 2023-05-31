@@ -4,17 +4,17 @@
 #}
 
 resource "random_string" "random" {
-  length = 4
-  count       = var.apply ? 1 : 0
+  length  = 4
+  count   = var.apply ? 1 : 0
   special = false
-  upper = false
+  upper   = false
 }
 
 
 resource "azurerm_resource_group" "rg" {
   count    = var.apply ? 1 : 0
   location = var.resource_group_location
-  name     = ${var.resource_group_name_prefix}${random_string.random[count.index].id}"
+  name     = "${var.resource_group_name_prefix}${random_string.random[count.index].id}"
 }
 
 # Create virtual network
@@ -100,7 +100,7 @@ resource "random_id" "storage_account" {
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "storage_account" {
   count                    = var.apply ? 1 : 0
-  name                     = "${random_id.storage_account[count.index].hex}"
+  name                     = random_id.storage_account[count.index].hex
   location                 = azurerm_resource_group.rg[count.index].location
   resource_group_name      = azurerm_resource_group.rg[count.index].name
   account_tier             = "Standard"
