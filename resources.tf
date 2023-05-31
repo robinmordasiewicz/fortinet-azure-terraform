@@ -1,18 +1,26 @@
-resource "random_pet" "resource_group" {
+#resource "random_pet" "resource_group" {
+#  count       = var.apply ? 1 : 0
+#  prefix      = var.resource_group_name_prefix
+#}
+
+resource "random_string" "random" {
+  length = 4
   count       = var.apply ? 1 : 0
-  prefix      = var.resource_group_name_prefix
+  special = false
+  upper = false
 }
+
 
 resource "azurerm_resource_group" "rg" {
   count    = var.apply ? 1 : 0
   location = var.resource_group_location
-  name     = random_pet.resource_group[count.index].id
+  name     = ${var.resource_group_name_prefix}${random_string.random[count.index].id}"
 }
 
 # Create virtual network
 resource "azurerm_virtual_network" "vnet" {
   count               = var.apply ? 1 : 0
-  name                = "${random_pet.resource_group[count.index].id}-vnet"
+  name                = "${azurerm_resource_group.rg[count.index].name}-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
@@ -21,7 +29,7 @@ resource "azurerm_virtual_network" "vnet" {
 # Create subnet
 resource "azurerm_subnet" "subnet" {
   count                = var.apply ? 1 : 0
-  name                 = "${random_pet.resource_group[count.index].id}-subnet"
+  name                 = "${azurerm_resource_group.rg[count.index].name}-subnet"
   resource_group_name  = azurerm_resource_group.rg[count.index].name
   virtual_network_name = azurerm_virtual_network.vnet[count.index].name
   address_prefixes     = ["10.0.1.0/24"]
@@ -30,7 +38,7 @@ resource "azurerm_subnet" "subnet" {
 # Create public IPs
 resource "azurerm_public_ip" "public_ip" {
   count               = var.apply ? 1 : 0
-  name                = "${random_pet.resource_group[count.index].id}-publicip"
+  name                = "${azurerm_resource_group.rg[count.index].name}-publicip"
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
   allocation_method   = "Dynamic"
@@ -39,7 +47,7 @@ resource "azurerm_public_ip" "public_ip" {
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "nsg" {
   count               = var.apply ? 1 : 0
-  name                = "${random_pet.resource_group[count.index].id}-nsg"
+  name                = "${azurerm_resource_group.rg[count.index].name}-nsg"
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
 
@@ -59,7 +67,7 @@ resource "azurerm_network_security_group" "nsg" {
 # Create network interface
 resource "azurerm_network_interface" "nic" {
   count               = var.apply ? 1 : 0
-  name                = "${random_pet.resource_group[count.index].id}-nic"
+  name                = "${azurerm_resource_group.rg[count.index].name}-nic"
   location            = azurerm_resource_group.rg[count.index].location
   resource_group_name = azurerm_resource_group.rg[count.index].name
 
@@ -109,14 +117,14 @@ resource "tls_private_key" "ssh_private_key" {
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "ubuntu_vm" {
   count                 = var.apply ? 1 : 0
-  name                  = "${random_pet.resource_group[count.index].id}-vm"
+  name                  = "${azurerm_resource_group.rg[count.index].name}-vm"
   location              = azurerm_resource_group.rg[count.index].location
   resource_group_name   = azurerm_resource_group.rg[count.index].name
   network_interface_ids = [azurerm_network_interface.nic[count.index].id]
   size                  = "Standard_DS1_v2"
 
   os_disk {
-    name                 = "${random_pet.resource_group[count.index].id}-disk"
+    name                 = "${azurerm_resource_group.rg[count.index].name}-disk"
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
   }
@@ -128,7 +136,7 @@ resource "azurerm_linux_virtual_machine" "ubuntu_vm" {
     version   = "latest"
   }
 
-  computer_name                   = "${random_pet.resource_group[count.index].id}-vm"
+  computer_name                   = "${azurerm_resource_group.rg[count.index].name}-vm"
   admin_username                  = "azureuser"
   disable_password_authentication = true
 
