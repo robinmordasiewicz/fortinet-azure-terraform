@@ -1,15 +1,14 @@
-#resource "random_pet" "resource_group" {
-#  count       = var.apply ? 1 : 0
-#  prefix      = var.resource_group_name_prefix
-#}
+resource "random_pet" "resource_group" {
+  count  = var.apply ? 1 : 0
+  prefix = var.resource_group_name_prefix
+}
 
 resource "random_string" "random" {
-  length  = 4
   count   = var.apply ? 1 : 0
+  length  = 4
   special = false
   upper   = false
 }
-
 
 resource "azurerm_resource_group" "rg" {
   count    = var.apply ? 1 : 0
