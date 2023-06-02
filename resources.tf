@@ -1,8 +1,3 @@
-resource "random_pet" "resource_group" {
-  count  = var.apply ? 1 : 0
-  prefix = var.resource_group_name_prefix
-}
-
 resource "random_string" "random" {
   count   = var.apply ? 1 : 0
   length  = 4
